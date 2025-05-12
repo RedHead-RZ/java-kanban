@@ -10,19 +10,14 @@ public class Epic extends Task {
 
     @Override
     public Task updateTask(Task task) {
-        if (!(task instanceof Subtask)) {
-            setLabel(task.getLabel());
-            setDescription(task.getDescription());
-        } else {
-            if (this.checkSubtaskStatus(Status.NEW) && task.getStatus().equals(Status.IN_PROGRESS)) {
-                setStatus(task.getStatus());
-            }
-            if ((this.checkSubtaskStatus(Status.IN_PROGRESS)
-                    || this.checkSubtaskStatus(Status.NEW))
-                    && task.getStatus().equals(Status.DONE)) {
-                setStatus(task.getStatus());
-            }
-        }
+        this.setLabel(task.getLabel());
+        this.setDescription(task.getDescription());
+
+        if (this.checkSubtaskStatus(Status.NEW)) {
+            setStatus(Status.NEW);
+        } else if (this.checkSubtaskStatus(Status.IN_PROGRESS)) {
+            setStatus(Status.IN_PROGRESS);
+        } else setStatus(Status.DONE);
         return this;
     }
 
@@ -32,18 +27,14 @@ public class Epic extends Task {
         for (Subtask subtask : subtasks) {
             str.append("\n     ").append(subtask.toString());
         }
-        return super.toString() + "; Спсиок задач:" + str;
+        return super.toString() + "; Список задач:" + str;
     }
 
     private boolean checkSubtaskStatus(Status status) {
         if (!subtasks.isEmpty()) {
-            for (Subtask subtask : subtasks) {
-                if (subtask.getStatus().equals(status)) {
-                    return false;
-                }
-            }
+            return subtasks.stream().anyMatch(task -> task.getStatus().equals(status));
         }
-        return true;
+        return false;
     }
 
     public ArrayList<Subtask> getSubtasks() {
@@ -52,5 +43,14 @@ public class Epic extends Task {
 
     public void addSubtask(Subtask subtask) {
         this.subtasks.add(subtask);
+    }
+
+    public void removeSubtask(Subtask subtask) {
+        this.subtasks.remove(subtask);
+        this.updateTask(this);
+    }
+
+    public void removeAllSubtasks() {
+        this.subtasks.clear();
     }
 }

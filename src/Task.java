@@ -1,14 +1,12 @@
 public class Task {
-    static int counter = 0;
-    private final int id;
+    private int id;
     private String label;
     private String description;
-    Status status;
+    private Status status;
 
     public Task(String label, String description) {
         this.label = label;
         this.description = description;
-        this.id = counter;
         this.status = Status.NEW;
     }
 
@@ -25,8 +23,26 @@ public class Task {
                 + "; Описание: " + description + "; Статус: " + status + "; ID: " + id;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        Task task = (Task) obj;
+        return this.id == task.id;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        return prime + id;
+    }
+
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getLabel() {
@@ -51,13 +67,5 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public static void incrementCounter() {
-        counter++;
-    }
-
-    public static void setCounter(int newCounter) {
-        counter = newCounter;
     }
 }

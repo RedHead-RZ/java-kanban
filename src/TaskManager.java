@@ -1,67 +1,58 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class TaskManager {
-    static HashMap<Integer, Task> tasks = new HashMap<>();
+    private final HashMap<Integer, Task> tasks = new HashMap<>();
+    private static int counter = 0;
 
+    /*
+     * Метод для добавления Task и Epic
+     * */
     public Task addNewTask(Task task) {
-        tasks.put(task.getId(), task);
-        Task.incrementCounter(); //учитываем увеличение счетчика только при сохранении задачи
+        tasks.put(counter, task);
+        task.setId(counter++);
+        if (task instanceof Subtask subtask && subtask.getParentTask() != null) {
+            Epic parent = subtask.getParentTask();
+            parent.addSubtask(subtask);
+            parent.updateTask(subtask.getParentTask());
+        }
         return task;
     }
 
-    public Subtask addNewSubtask(Subtask subtask) {
-        if (getTaskById(subtask.getParentId()) != null) {
-            tasks.put(subtask.getId(), subtask);
-            Epic epic = (Epic) getTaskById(subtask.getParentId());
-            epic.addSubtask(subtask);
-            Task.incrementCounter(); //учитываем увеличение счетчика только при сохранении задачи
-            return subtask;
-        }
-        return null;
+    public <T> ArrayList<Task> getTasksByType(Class<T> type) {
+        return new ArrayList<>(tasks.values()
+                .stream().filter(task -> task.getClass().equals(type)).toList());
     }
 
-    public ArrayList<Task> getAllTasks() {
-        return new ArrayList<>(tasks.values());
-    }
-
-    public ArrayList<Task> getTasksByType(String type) {
-        ArrayList<Task> tasksByType = new ArrayList<>();
-        for (Task task : tasks.values()) {
-            if (task.getClass().getSimpleName().equals(type)) {
-                tasksByType.add(task);
-            }
-        }
-        return tasksByType;
-    }
-
-    public static Task getTaskById(int id) {
+    public Task getTaskById(int id) {
         return tasks.get(id) == null ? null : tasks.get(id);
     }
 
-    public void removeAllTasks() {
-        tasks.clear();
-        Task.setCounter(0);
+    public <T> void removeTasksByType(Class<T> taskType) {
+        tasks.values().removeIf(task -> task.getClass().equals(taskType));
     }
 
     public void removeTaskById(int id) {
         if (getTaskById(id) != null) {
-            if (Objects.requireNonNull(getTaskById(id)).getClass().equals(Epic.class)) {
-                Epic epic = (Epic) getTaskById(id);
-                ArrayList<Subtask> subtasks = epic != null ? epic.getSubtasks() : null;
-                if (subtasks != null) {
-                    for (int i = subtasks.size() - 1; i > -1; i--) {
-                        removeTaskById(subtasks.get(i).getId());
-                    }
-                }
-            }
-            if (getTaskById(id).getClass().equals(Subtask.class)) {
-                Subtask subtask = (Subtask) getTaskById(id);
-                Epic epic = (Epic) getTaskById(Objects.requireNonNull(subtask).getParentId());
-                epic.getSubtasks().remove(subtask);
+            Task task = getTaskById(id);
+            switch (task) {
+                case Subtask subtask:
+                    subtask.removeFromParentTask();
+                    break;
+                case Epic epic:
+                    epic.removeAllSubtasks();
+                    break;
+                default:
+                    break;
             }
             tasks.remove(id);
         }
+    }
+
+    public Task updateTask(Task task) {
+        if (tasks.get(task.getId()) != null) {
+            return tasks.get(task.getId()).updateTask(task);
+        }
+        return null;
     }
 }

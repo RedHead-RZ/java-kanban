@@ -1,26 +1,29 @@
 public class Subtask extends Task {
 
-    private final int parentId;
+    private Epic parentTask;
 
-    public Subtask(String label, String description, int parentId) {
+    public Subtask(String label, String description, Epic parentTask) {
         super(label, description);
-        this.parentId = parentId;
+        this.parentTask = parentTask;
     }
 
     @Override
     public Task updateTask(Task task) {
         super.updateTask(task);
-        Epic subtask = (Epic) TaskManager.tasks.get(parentId);
-        subtask.updateTask(task);
+        parentTask.updateTask(task);
         return this;
     }
 
     @Override
     public String toString() {
-        return super.toString() + "; Родительская задача: " + parentId;
+        return super.toString() + "; Родительская задача: " + parentTask.getLabel();
     }
 
-    public int getParentId() {
-        return parentId;
+    public Epic getParentTask() {
+        return parentTask;
+    }
+
+    public void removeFromParentTask() {
+        parentTask.removeSubtask(this);
     }
 }
