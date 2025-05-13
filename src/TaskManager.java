@@ -5,9 +5,6 @@ public class TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private static int counter = 0;
 
-    /*
-     * Метод для добавления Task и Epic
-     * */
     public Task addNewTask(Task task) {
         tasks.put(counter, task);
         task.setId(counter++);
@@ -29,7 +26,7 @@ public class TaskManager {
     }
 
     public <T> void removeTasksByType(Class<T> taskType) {
-        tasks.values().removeIf(task -> task.getClass().equals(taskType));
+        getTasksByType(taskType).forEach(task -> removeTaskById(task.getId()));
     }
 
     public void removeTaskById(int id) {
@@ -40,6 +37,7 @@ public class TaskManager {
                     subtask.removeFromParentTask();
                     break;
                 case Epic epic:
+                    epic.getSubtasks().forEach(subtask -> tasks.remove(subtask.getId()));
                     epic.removeAllSubtasks();
                     break;
                 default:

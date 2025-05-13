@@ -17,7 +17,9 @@ public class Epic extends Task {
             setStatus(Status.NEW);
         } else if (this.checkSubtaskStatus(Status.IN_PROGRESS)) {
             setStatus(Status.IN_PROGRESS);
-        } else setStatus(Status.DONE);
+        } else if (this.checkSubtaskStatus(Status.DONE)) {
+            setStatus(Status.DONE);
+        } else setStatus(Status.NEW); //если список сабтасок пустой устанавливаем стартовый статус
         return this;
     }
 
@@ -52,5 +54,6 @@ public class Epic extends Task {
 
     public void removeAllSubtasks() {
         this.subtasks.clear();
+        this.updateTask(this);
     }
 }

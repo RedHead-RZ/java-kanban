@@ -49,22 +49,22 @@ public class TestApp {
         //удаление задачи по id
         System.out.println("~~Test removeTaskById");
         //удаляем тип задачи Task
-        taskManager.removeTaskById(0);
-        System.out.println("Remove ID: 0");
+        taskManager.removeTaskById(9);
+        System.out.println("Remove ID: 9");
         for (Task t : taskManager.getTasksByType(Task.class)) {
             System.out.println(t);
         }
         System.out.println();
         //удаляем тип задачи Subtask
-        taskManager.removeTaskById(6);
-        System.out.println("Remove ID: 6");
+        taskManager.removeTaskById(14);
+        System.out.println("Remove ID: 14");
         for (Task t : taskManager.getTasksByType(Subtask.class)) {
             System.out.println(t);
         }
         System.out.println();
-        taskManager.removeTaskById(3);
+        taskManager.removeTaskById(12);
         //удаляем тип задачи Epic
-        System.out.println("Remove ID: 3");
+        System.out.println("Remove ID: 12");
         for (Task t : taskManager.getTasksByType(Epic.class)) {
             System.out.println(t);
         }
@@ -73,9 +73,7 @@ public class TestApp {
         removeAllTasks(taskManager);
         populateDataForTest(taskManager);
         System.out.println();
-        for (Task t : getAllTasks(taskManager)) {
-            System.out.println(t);
-        }
+
         //проверка изменения задачи
         System.out.println("~~Test updateTask");
         System.out.println("-Task"); //Task

@@ -25,5 +25,6 @@ public class Subtask extends Task {
 
     public void removeFromParentTask() {
         parentTask.removeSubtask(this);
+        parentTask.updateTask(parentTask);
     }
 }
