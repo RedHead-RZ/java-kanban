@@ -1,3 +1,7 @@
+package model;
+
+import enums.Status;
+
 import java.util.ArrayList;
 
 public class Epic extends Task {
@@ -10,8 +14,10 @@ public class Epic extends Task {
 
     @Override
     public Task updateTask(Task task) {
-        this.setLabel(task.getLabel());
-        this.setDescription(task.getDescription());
+        if (task instanceof Epic) {
+            this.setLabel(task.getLabel());
+            this.setDescription(task.getDescription());
+        }
 
         if (this.checkSubtaskStatus(Status.NEW)) {
             setStatus(Status.NEW);
