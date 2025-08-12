@@ -34,7 +34,6 @@ class EpicTest {
         //изменение статуса при изменении одного эпика In Progress
         subtask.setStatus(Status.IN_PROGRESS);
         subtask.updateTask(subtask);
-        System.out.println(epic);
         assertEquals(epic.getStatus(), subtask.getStatus());
         subtask2.setStatus(Status.IN_PROGRESS);
         subtask2.updateTask(subtask2);

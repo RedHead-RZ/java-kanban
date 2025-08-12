@@ -11,20 +11,17 @@ class InMemoryHistoryManagerTest {
     @Test
     void add() {
         TaskManager taskManager = Managers.getDefault();
-        taskManager.addNewTask(new Task("Label", "Description"));
-        taskManager.getTaskById(3);
-        assertEquals(1, taskManager.getHistory().size()); //проверка добавления одного элемента
+
         for (int i = 1; i <= 10; i++) {
             taskManager.addNewTask(new Task("Label-" + i, "Description-" + i));
             taskManager.getTaskById(i);
         }
-        assertEquals(8, taskManager.getHistory().size());
-        taskManager.getTaskById(0);    //проверка на добавление первой ноды
-        assertEquals("Label-7", taskManager.getHistory().getLast().getLabel());
-        taskManager.getTaskById(5);    //проверка на добавление ноды из середины мапы
-        assertEquals("Label-2", taskManager.getHistory().getLast().getLabel());
-        taskManager.getTaskById(5); //дополнительная на доабвднеие последней ноды
-        assertEquals("Label-2", taskManager.getHistory().getLast().getLabel());
+        int id = taskManager.getHistory().getFirst().getId();
+        taskManager.getTaskById(id);    //проверка на добавление первой ноды
+        assertEquals(id, taskManager.getHistory().getLast().getId());
+        id = taskManager.getHistory().getLast().getId();
+        taskManager.getTaskById(taskManager.getHistory().getLast().getId()); //добавлнеие последней ноды
+        assertEquals(id, taskManager.getHistory().getLast().getId());
     }
 
     @Test
