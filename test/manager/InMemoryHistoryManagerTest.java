@@ -1,38 +1,54 @@
 package manager;
 
 import model.Task;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InMemoryHistoryManagerTest {
 
     @Test
     void add() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        Task task = new Task("Label", "Description");
-        historyManager.add(task);
-        //Проверка на добавление
-        assertEquals(1, historyManager.getHistory().size());
-        //проверили на добавление
-        assertEquals("Label", historyManager.getHistory().getFirst().getLabel());
-        for (int i = 0; i < 10; i++) {
-            historyManager.add(new Task("Label" + i, "Description" + i));
+        TaskManager taskManager = Managers.getDefault();
+        taskManager.addNewTask(new Task("Label", "Description"));
+        taskManager.getTaskById(0);
+        assertEquals(1, taskManager.getHistory().size()); //проверка добавления одного элемента
+        for (int i = 1; i <= 10; i++) {
+            taskManager.addNewTask(new Task("Label-" + i, "Description-" + i));
+            taskManager.getTaskById(i);
         }
-        //проверка на удаление первых элементов при переполнении списка истории
-        assertNotEquals("Label", historyManager.getHistory().getFirst().getLabel());
-        //проверка на размер списка при переполнении
-        assertEquals(10, historyManager.getHistory().size());
+        assertEquals(11, taskManager.getHistory().size());
+        taskManager.getTaskById(0);    //проверка на добавление первой ноды
+        assertEquals("Label", taskManager.getHistory().getLast().getLabel());
+        taskManager.getTaskById(5);    //проверка на добавление ноды из середины мапы
+        assertEquals("Label-5", taskManager.getHistory().getLast().getLabel());
+        taskManager.getTaskById(5); //дополнительная на доабвднеие последней ноды
+        assertEquals("Label-5", taskManager.getHistory().getLast().getLabel());
     }
 
     @Test
     void getHistory() {
         HistoryManager historyManager = Managers.getDefaultHistory();
         historyManager.add(new Task("Label", "Description"));
-        //проверка вохврата списка историичности
+        //проверка возврата списка историичности
         assertNotNull(historyManager.getHistory());
+    }
+
+    @Test
+    void remove() {
+        TaskManager taskManager = Managers.getDefault();
+        taskManager.addNewTask(new Task("Label", "Description"));
+        taskManager.addNewTask(new Task("Label-2", "Description-2"));
+        taskManager.addNewTask(new Task("Label-3", "Description-3"));
+        taskManager.getTaskById(2);
+        taskManager.getTaskById(1);
+        taskManager.getTaskById(0);
+        taskManager.removeTaskById(1);
+        assertEquals(2, taskManager.getHistory().size());//удаление элемента из середины
+        taskManager.removeTaskById(0);
+        assertEquals(1, taskManager.getHistory().size());//удаление элемента из середины
+        taskManager.removeTaskById(2);
+        assertEquals(0, taskManager.getHistory().size());//удаление элемента из середины
     }
 }

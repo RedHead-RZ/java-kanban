@@ -19,9 +19,7 @@ public class Epic extends Task {
             this.setDescription(task.getDescription());
         }
 
-        if (this.checkSubtaskStatus(Status.NEW)) {
-            setStatus(Status.NEW);
-        } else if (this.checkSubtaskStatus(Status.IN_PROGRESS)) {
+        if (this.checkSubtaskStatus(Status.IN_PROGRESS)) {
             setStatus(Status.IN_PROGRESS);
         } else if (this.checkSubtaskStatus(Status.DONE)) {
             setStatus(Status.DONE);
@@ -39,6 +37,9 @@ public class Epic extends Task {
     }
 
     private boolean checkSubtaskStatus(Status status) {
+        if (status == Status.DONE && !subtasks.isEmpty()) {
+            return subtasks.stream().allMatch(task -> task.getStatus().equals(status));
+        }
         if (!subtasks.isEmpty()) {
             return subtasks.stream().anyMatch(task -> task.getStatus().equals(status));
         }

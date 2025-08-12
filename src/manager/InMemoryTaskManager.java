@@ -36,11 +36,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        Task task = tasks.get(id) == null ? null : tasks.get(id);
-        if (task != null) {
-            historyManager.add(task);
-        }
-        return task;
+        return getTaskById(id, true);
     }
 
     @Override
@@ -50,19 +46,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeTaskById(int id) {
-        if (getTaskById(id) != null) {
-            Task task = getTaskById(id);
+        Task task = getTaskById(id, false);
+        if (task != null) {
             switch (task) {
                 case Subtask subtask:
                     subtask.removeFromParentTask();
                     break;
                 case Epic epic:
-                    epic.getSubtasks().forEach(subtask -> tasks.remove(subtask.getId()));
+                    epic.getSubtasks().forEach(this::removeSubtasks);
                     epic.removeAllSubtasks();
                     break;
                 default:
                     break;
             }
+            historyManager.remove(id);
             tasks.remove(id);
         }
     }
@@ -78,5 +75,18 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    private void removeSubtasks(Subtask subtask) {
+        tasks.remove(subtask.getId());
+        historyManager.remove(subtask.getId());
+    }
+
+    private Task getTaskById(int id, boolean updateHistory) {
+        Task task = tasks.get(id) == null ? null : tasks.get(id);
+        if (task != null && updateHistory) {
+            historyManager.add(task);
+        }
+        return task;
     }
 }

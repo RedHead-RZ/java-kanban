@@ -4,9 +4,8 @@ import enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class EpicTest {
 
@@ -35,7 +34,8 @@ class EpicTest {
         //изменение статуса при изменении одного эпика In Progress
         subtask.setStatus(Status.IN_PROGRESS);
         subtask.updateTask(subtask);
-        assertNotEquals(epic.getStatus(), subtask.getStatus());
+        System.out.println(epic);
+        assertEquals(epic.getStatus(), subtask.getStatus());
         subtask2.setStatus(Status.IN_PROGRESS);
         subtask2.updateTask(subtask2);
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
