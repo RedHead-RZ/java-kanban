@@ -11,16 +11,17 @@ class InMemoryHistoryManagerTest {
     @Test
     void add() {
         TaskManager taskManager = Managers.getDefault();
-
+        int id;
         for (int i = 1; i <= 10; i++) {
-            taskManager.addNewTask(new Task("Label-" + i, "Description-" + i));
-            taskManager.getTaskById(i);
+            id = taskManager.addNewTask(new Task("Label-" + i, "Description-" + i)).getId();
+            taskManager.getTaskById(id);
         }
-        int id = taskManager.getHistory().getFirst().getId();
-        taskManager.getTaskById(id);    //проверка на добавление первой ноды
+        assertEquals(10 , taskManager.getHistory().size());
+        id = taskManager.getHistory().getFirst().getId();
+        taskManager.getTaskById(id);    //проверка на перестановку первой ноды
         assertEquals(id, taskManager.getHistory().getLast().getId());
         id = taskManager.getHistory().getLast().getId();
-        taskManager.getTaskById(taskManager.getHistory().getLast().getId()); //добавлнеие последней ноды
+        taskManager.getTaskById(id); //добавлнеие последней ноды
         assertEquals(id, taskManager.getHistory().getLast().getId());
     }
 
@@ -38,14 +39,15 @@ class InMemoryHistoryManagerTest {
         taskManager.addNewTask(new Task("Label", "Description"));
         taskManager.addNewTask(new Task("Label-2", "Description-2"));
         taskManager.addNewTask(new Task("Label-3", "Description-3"));
-        taskManager.getTaskById(2);
-        taskManager.getTaskById(1);
-        taskManager.getTaskById(0);
-        taskManager.removeTaskById(1);
+        int initialIndex = taskManager.getTasksByType(Task.class).getFirst().getId();
+        taskManager.getTaskById(initialIndex);
+        taskManager.getTaskById(initialIndex + 1);
+        taskManager.getTaskById(initialIndex + 2);
+        taskManager.removeTaskById(taskManager.getHistory().getLast().getId());
         assertEquals(2, taskManager.getHistory().size());//удаление элемента из середины
-        taskManager.removeTaskById(0);
-        assertEquals(1, taskManager.getHistory().size());//удаление элемента из середины
-        taskManager.removeTaskById(2);
-        assertEquals(0, taskManager.getHistory().size());//удаление элемента из середины
+        taskManager.removeTaskById(taskManager.getHistory().getFirst().getId());
+        assertEquals(1, taskManager.getHistory().size());//удаление элемента из начала
+        taskManager.removeTaskById(taskManager.getHistory().getFirst().getId());
+        assertEquals(0, taskManager.getHistory().size());//удаление последнего элемента
     }
 }
