@@ -1,38 +1,53 @@
 package manager;
 
 import model.Task;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InMemoryHistoryManagerTest {
 
     @Test
     void add() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        Task task = new Task("Label", "Description");
-        historyManager.add(task);
-        //Проверка на добавление
-        assertEquals(1, historyManager.getHistory().size());
-        //проверили на добавление
-        assertEquals("Label", historyManager.getHistory().getFirst().getLabel());
-        for (int i = 0; i < 10; i++) {
-            historyManager.add(new Task("Label" + i, "Description" + i));
+        TaskManager taskManager = Managers.getDefault();
+        int id;
+        for (int i = 1; i <= 10; i++) {
+            id = taskManager.addNewTask(new Task("Label-" + i, "Description-" + i)).getId();
+            taskManager.getTaskById(id);
         }
-        //проверка на удаление первых элементов при переполнении списка истории
-        assertNotEquals("Label", historyManager.getHistory().getFirst().getLabel());
-        //проверка на размер списка при переполнении
-        assertEquals(10, historyManager.getHistory().size());
+        assertEquals(10 , taskManager.getHistory().size());
+        id = taskManager.getHistory().getFirst().getId();
+        taskManager.getTaskById(id);    //проверка на перестановку первой ноды
+        assertEquals(id, taskManager.getHistory().getLast().getId());
+        id = taskManager.getHistory().getLast().getId();
+        taskManager.getTaskById(id); //добавлнеие последней ноды
+        assertEquals(id, taskManager.getHistory().getLast().getId());
     }
 
     @Test
     void getHistory() {
         HistoryManager historyManager = Managers.getDefaultHistory();
         historyManager.add(new Task("Label", "Description"));
-        //проверка вохврата списка историичности
+        //проверка возврата списка историичности
         assertNotNull(historyManager.getHistory());
+    }
+
+    @Test
+    void remove() {
+        TaskManager taskManager = Managers.getDefault();
+        taskManager.addNewTask(new Task("Label", "Description"));
+        taskManager.addNewTask(new Task("Label-2", "Description-2"));
+        taskManager.addNewTask(new Task("Label-3", "Description-3"));
+        int initialIndex = taskManager.getTasksByType(Task.class).getFirst().getId();
+        taskManager.getTaskById(initialIndex);
+        taskManager.getTaskById(initialIndex + 1);
+        taskManager.getTaskById(initialIndex + 2);
+        taskManager.removeTaskById(taskManager.getHistory().getLast().getId());
+        assertEquals(2, taskManager.getHistory().size());//удаление элемента из середины
+        taskManager.removeTaskById(taskManager.getHistory().getFirst().getId());
+        assertEquals(1, taskManager.getHistory().size());//удаление элемента из начала
+        taskManager.removeTaskById(taskManager.getHistory().getFirst().getId());
+        assertEquals(0, taskManager.getHistory().size());//удаление последнего элемента
     }
 }
