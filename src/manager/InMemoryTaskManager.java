@@ -18,13 +18,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task addNewTask(Task task) {
-        tasks.put(counter, task);
-        task.setId(counter++);
+        if (task.getId() == null) {
+            task.setId(counter);
+        }
+        tasks.put(task.getId(), task);
         if (task instanceof Subtask subtask && subtask.getParentTask() != null) {
             Epic parent = subtask.getParentTask();
             parent.addSubtask(subtask);
             parent.updateTask(subtask.getParentTask());
         }
+        counter++;
         return task;
     }
 
@@ -78,5 +81,9 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values());
     }
 }
