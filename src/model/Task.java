@@ -4,7 +4,7 @@ package model;
 import enums.Status;
 
 public class Task {
-    private int id;
+    private Integer id;
     private String label;
     private String description;
     private Status status;
@@ -33,7 +33,7 @@ public class Task {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         Task task = (Task) obj;
-        return this.id == task.id;
+        return this.id.equals(task.id);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Task {
         return prime + id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

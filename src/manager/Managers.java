@@ -13,6 +13,10 @@ public class Managers {
         return new InMemoryTaskManager();
     }
 
+    public static TaskManager getFileBackedManager() {
+        return new FileBackedTaskManager("resources/TaskBase.csv");
+    }
+
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
     }
