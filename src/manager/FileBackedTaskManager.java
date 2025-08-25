@@ -45,10 +45,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String formatTaskToCSV(Task task) {
         if (task instanceof Subtask subtask) {
-            return String.format("%d,%s,%s,%s,%s,%d", subtask.getId(), subtask.getClass().getSimpleName(), subtask.getLabel(), subtask.getStatus(), subtask.getDescription(), subtask.getParentTask().getId());
+            return String.format("%d,%s,%s,%s,%s,%d",
+                    subtask.getId(),
+                    subtask.getClass().getSimpleName(),
+                    subtask.getLabel(),
+                    subtask.getStatus(),
+                    subtask.getDescription(),
+                    subtask.getParentTask().getId());
 
         } else {
-            return String.format("%d,%s,%s,%s,%s", task.getId(), task.getClass().getSimpleName(), task.getLabel(), task.getStatus(), task.getDescription());
+            return String.format("%d,%s,%s,%s,%s",
+                    task.getId(),
+                    task.getClass().getSimpleName(),
+                    task.getLabel(),
+                    task.getStatus(),
+                    task.getDescription());
         }
     }
 
@@ -73,35 +84,28 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private Task fromString(String value) {
         String[] taskProps = value.split(",");
         Task task = null;
-        try {
-
-
-            if (taskProps.length > 0) {
-                switch (taskProps[1]) {
-                    case "Task": {
-                        task = new Task(taskProps[2], taskProps[4]);
-                        task.setId(Integer.parseInt(taskProps[0]));
-                        task.setStatus(Status.valueOf(taskProps[3]));
-                        break;
-                    }
-                    case "Epic": {
-                        task = new Epic(taskProps[2], taskProps[4]);
-                        task.setId(Integer.parseInt(taskProps[0]));
-                        task.setStatus(Status.valueOf(taskProps[3]));
-                        break;
-                    }
-                    case "Subtask": {
-                        task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[5])));
-                        task.setId(Integer.parseInt(taskProps[0]));
-                        task.setStatus(Status.valueOf(taskProps[3]));
-                        break;
-                    }
+        if (taskProps.length > 0) {
+            switch (taskProps[1]) {
+                case "Task": {
+                    task = new Task(taskProps[2], taskProps[4]);
+                    task.setId(Integer.parseInt(taskProps[0]));
+                    task.setStatus(Status.valueOf(taskProps[3]));
+                    break;
+                }
+                case "Epic": {
+                    task = new Epic(taskProps[2], taskProps[4]);
+                    task.setId(Integer.parseInt(taskProps[0]));
+                    task.setStatus(Status.valueOf(taskProps[3]));
+                    break;
+                }
+                case "Subtask": {
+                    task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[5])));
+                    task.setId(Integer.parseInt(taskProps[0]));
+                    task.setStatus(Status.valueOf(taskProps[3]));
+                    break;
                 }
             }
-        } catch (RuntimeException e) {
-            System.out.println(task);
         }
-
         return task;
     }
 
