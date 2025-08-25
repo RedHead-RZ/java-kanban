@@ -73,28 +73,35 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private Task fromString(String value) {
         String[] taskProps = value.split(",");
         Task task = null;
-        if (taskProps.length > 0) {
-            switch (taskProps[1]) {
-                case "Task": {
-                    task = new Task(taskProps[2], taskProps[4]);
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
-                    break;
-                }
-                case "Epic": {
-                    task = new Epic(taskProps[2], taskProps[4]);
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
-                    break;
-                }
-                case "Subtask": {
-                    task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[5])));
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
-                    break;
+        try {
+
+
+            if (taskProps.length > 0) {
+                switch (taskProps[1]) {
+                    case "Task": {
+                        task = new Task(taskProps[2], taskProps[4]);
+                        task.setId(Integer.parseInt(taskProps[0]));
+                        task.setStatus(Status.valueOf(taskProps[3]));
+                        break;
+                    }
+                    case "Epic": {
+                        task = new Epic(taskProps[2], taskProps[4]);
+                        task.setId(Integer.parseInt(taskProps[0]));
+                        task.setStatus(Status.valueOf(taskProps[3]));
+                        break;
+                    }
+                    case "Subtask": {
+                        task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[5])));
+                        task.setId(Integer.parseInt(taskProps[0]));
+                        task.setStatus(Status.valueOf(taskProps[3]));
+                        break;
+                    }
                 }
             }
+        } catch (RuntimeException e) {
+            System.out.println(task);
         }
+
         return task;
     }
 
