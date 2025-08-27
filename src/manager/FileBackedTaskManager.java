@@ -8,6 +8,7 @@ import model.Subtask;
 import model.Task;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,7 +22,51 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public FileBackedTaskManager(String path) {
         this.file = Paths.get(path);
-        loadFromFile();
+        loadFromFile(file.toFile());
+    }
+
+    @Override
+    public Task addNewTask(Task task) {
+        Task resultTask = super.addNewTask(task);
+        save();
+        return resultTask;
+    }
+
+    @Override
+    public <T> void removeTasksByType(Class<T> taskType) {
+        super.removeTasksByType(taskType);
+        save();
+    }
+
+    @Override
+    public void removeTaskById(int id) {
+        super.removeTaskById(id);
+        save();
+    }
+
+    @Override
+    public Task updateTask(Task task) {
+        Task resultTask = super.updateTask(task);
+        save();
+        return resultTask;
+    }
+
+    private void loadFromFile(File file) {
+        if (!Files.exists(file.toPath())) {
+            return;
+        }
+        try {
+            List<String> lines = Files.readAllLines(file.toPath());
+            if (lines.size() <= 1) return;
+            for (int i = 1; i < lines.size(); i++) {
+                Task task = fromString(lines.get(i));
+                if (task != null) {
+                    super.addNewTask(task);
+                }
+            }
+        } catch (IOException e) {
+            throw new ManagerFileLoadException("Ошибка при загрузке задач из файла: " + e.getMessage());
+        }
     }
 
     private void save() {
@@ -63,24 +108,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    public void loadFromFile() {
-        if (!Files.exists(file)) {
-            return;
-        }
-        try {
-            List<String> lines = Files.readAllLines(file);
-            if (lines.size() <= 1) return;
-            for (int i = 1; i < lines.size(); i++) {
-                Task task = fromString(lines.get(i));
-                if (task != null) {
-                    super.addNewTask(task);
-                }
-            }
-        } catch (IOException e) {
-            throw new ManagerFileLoadException("Ошибка при загрузке задач из файла: " + e.getMessage());
-        }
-    }
-
     private Task fromString(String value) {
         String[] taskProps = value.split(",");
         Task task = null;
@@ -107,31 +134,5 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
         }
         return task;
-    }
-
-    @Override
-    public Task addNewTask(Task task) {
-        Task resultTask = super.addNewTask(task);
-        save();
-        return resultTask;
-    }
-
-    @Override
-    public <T> void removeTasksByType(Class<T> taskType) {
-        super.removeTasksByType(taskType);
-        save();
-    }
-
-    @Override
-    public void removeTaskById(int id) {
-        super.removeTaskById(id);
-        save();
-    }
-
-    @Override
-    public Task updateTask(Task task) {
-        Task resultTask = super.updateTask(task);
-        save();
-        return resultTask;
     }
 }
