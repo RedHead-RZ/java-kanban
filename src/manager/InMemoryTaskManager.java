@@ -5,6 +5,7 @@ import model.Subtask;
 import model.Task;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -94,6 +95,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public ArrayList<Task> getTasks() {
-        return new ArrayList<>(tasks.values());
+        return new ArrayList<>(tasks.values().stream().sorted(Comparator.comparing(Task::getId)).toList());
     }
 }

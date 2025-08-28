@@ -19,6 +19,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static Path filePath = null;
 
+    private FileBackedTaskManager() {
+    }
+
     public static FileBackedTaskManager loadFromFile(File file) {
         filePath = file.toPath();
         if (!Files.exists(filePath)) {
