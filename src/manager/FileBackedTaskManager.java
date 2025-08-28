@@ -24,7 +24,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         filePath = file.toPath();
-
+        if (!Files.exists(filePath)) {
+            return new FileBackedTaskManager();
+        }
         try {
             FileBackedTaskManager manager = new FileBackedTaskManager();
             manager.parseFile(Files.readAllLines(filePath));
