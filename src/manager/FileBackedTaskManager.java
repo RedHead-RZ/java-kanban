@@ -12,17 +12,27 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private final Path file;
+    private static Path filePath = null;
 
-    public FileBackedTaskManager(String path) {
-        this.file = Paths.get(path);
-        loadFromFile(file.toFile());
+    private FileBackedTaskManager() {}
+
+    public static FileBackedTaskManager loadFromFile(File file) {
+        filePath = file.toPath();
+        if (!Files.exists(filePath)) {
+            return null;
+        }
+        try {
+            FileBackedTaskManager manager = new FileBackedTaskManager();
+            manager.parseFile(Files.readAllLines(filePath));
+            return manager;
+        } catch (IOException e) {
+            throw new ManagerFileLoadException("Ошибка при загрузке задач из файла: " + e.getMessage());
+        }
     }
 
     @Override
@@ -51,31 +61,23 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return resultTask;
     }
 
-    private void loadFromFile(File file) {
-        if (!Files.exists(file.toPath())) {
-            return;
-        }
-        try {
-            List<String> lines = Files.readAllLines(file.toPath());
-            if (lines.size() <= 1) return;
-            for (int i = 1; i < lines.size(); i++) {
-                Task task = fromString(lines.get(i));
-                if (task != null) {
-                    super.addNewTask(task);
-                }
+    private void parseFile(List<String> lines) {
+        if (lines.size() <= 1) return;
+        for (int i = 1; i < lines.size(); i++) {
+            Task task = fromString(lines.get(i));
+            if (task != null) {
+                super.addNewTask(task);
             }
-        } catch (IOException e) {
-            throw new ManagerFileLoadException("Ошибка при загрузке задач из файла: " + e.getMessage());
         }
     }
 
     private void save() {
         try {
-            Path parent = file.getParent();
+            Path parent = filePath.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-            try (BufferedWriter bw = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            try (BufferedWriter bw = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 bw.write("id,type,name,status,description,epic");
                 bw.newLine();
                 for (Task task : getTasks()) {
