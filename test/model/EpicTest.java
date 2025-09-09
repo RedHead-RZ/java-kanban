@@ -66,7 +66,7 @@ class EpicTest {
     @Test
     void removeSubtask() {
         epic.removeSubtask(subtask);
-        assertNotEquals(epic.getSubtasks().getFirst(), subtask);
+        assertNotEquals(epic.getSubtasks().getFirst().getId(), subtask.getId());
     }
 
     @Test
