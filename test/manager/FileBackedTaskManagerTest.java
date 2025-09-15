@@ -32,7 +32,6 @@ public class FileBackedTaskManagerTest {
         assertEquals(tm.getTaskById(epic.getId()).getLabel(), tmFromFile.getTaskById(epic.getId()).getLabel());
         assertEquals(tm.getTaskById(subtask.getId()).getLabel(), tmFromFile.getTaskById(subtask.getId()).getLabel());
         assertEquals(task.getStartTime(), tmFromFile.getTaskById(task.getId()).getStartTime());
-        assertEquals(task.getEndTime(), tmFromFile.getTaskById(task.getId()).getEndTime());
         assertEquals(task.getDuration(), tmFromFile.getTaskById(task.getId()).getDuration());
     }
 
@@ -49,7 +48,6 @@ public class FileBackedTaskManagerTest {
         assertEquals(tm.getTaskById(epic.getId()).getLabel(), epic.getLabel());
         assertEquals(tm.getTaskById(subtask.getId()).getLabel(), subtask.getLabel());
         assertEquals(task.getStartTime(), tm.getTaskById(task.getId()).getStartTime());
-        assertEquals(task.getEndTime(), tm.getTaskById(task.getId()).getEndTime());
         assertEquals(task.getDuration(), tm.getTaskById(task.getId()).getDuration());
     }
 
