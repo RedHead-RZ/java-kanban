@@ -4,17 +4,24 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private static int counter = 0;
     private final HistoryManager historyManager;
+    private final TreeSet<Task> prioritizedTasks;
+    private static final Comparator<Task> TASK_COMPARATOR = Comparator.comparing(Task::getStartTime)
+            .thenComparing(Task::getEndTime);
 
     public InMemoryTaskManager() {
         this.historyManager = Managers.getDefaultHistory();
+        prioritizedTasks = new TreeSet<>(TASK_COMPARATOR);
     }
 
     @Override
@@ -23,6 +30,9 @@ public class InMemoryTaskManager implements TaskManager {
             task.setId(counter);
         }
         tasks.put(task.getId(), task);
+        if (task.getStartTime() != null && !(task instanceof Epic)) {
+            prioritizedTasks.add(task);
+        }
         if (task instanceof Subtask subtask && subtask.getParentTask() != null) {
             Epic parent = subtask.getParentTask();
             parent.addSubtask(subtask);
@@ -45,7 +55,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public <T> void removeTasksByType(Class<T> taskType) {
-        getTasksByType(taskType).forEach(task -> removeTaskById(task.getId()));
+        getTasksByType(taskType).forEach(task -> {
+            removeTaskById(task.getId());
+            prioritizedTasks.remove(task);
+        });
+
     }
 
     @Override
@@ -65,12 +79,14 @@ public class InMemoryTaskManager implements TaskManager {
             }
             historyManager.remove(id);
             tasks.remove(id);
+            prioritizedTasks.remove(task);
         }
     }
 
     @Override
     public Task updateTask(Task task) {
         if (tasks.get(task.getId()) != null) {
+            if (task.getStartTime() != null && !(task instanceof Epic)) prioritizedTasks.add(task);
             return tasks.get(task.getId()).updateTask(task);
         }
         return null;
@@ -81,8 +97,34 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
+    public ArrayList<Task> getTasks() {
+        return new ArrayList<>(tasks.values().stream().sorted(Comparator.comparing(Task::getId)).toList());
+    }
+
+    public ArrayList<Task> getPrioritizedTasks() {
+        return (ArrayList<Task>) prioritizedTasks.stream()
+                .filter(task -> task.getStartTime() != null)
+                .sorted(Comparator.comparing(Task::getStartTime))
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasTimeOverlap(Task task) {
+        if (prioritizedTasks.size() <= 1) {
+            return false;
+        }
+
+        Task taskBefore = prioritizedTasks.lower(task) == null ? task : prioritizedTasks.lower(task);
+        Task taskAfter = prioritizedTasks.higher(task) == null ? task : prioritizedTasks.higher(task);
+
+        if (taskBefore != null && hasOverlapBetweenTasks(taskBefore, task)) {
+            return true;
+        }
+        return taskAfter != null && hasOverlapBetweenTasks(task, taskAfter);
+    }
+
     private void removeSubtasks(Subtask subtask) {
         tasks.remove(subtask.getId());
+        prioritizedTasks.remove(subtask);
         historyManager.remove(subtask.getId());
     }
 
@@ -94,7 +136,13 @@ public class InMemoryTaskManager implements TaskManager {
         return task;
     }
 
-    public ArrayList<Task> getTasks() {
-        return new ArrayList<>(tasks.values().stream().sorted(Comparator.comparing(Task::getId)).toList());
+    private boolean hasOverlapBetweenTasks(Task first, Task second) {
+        LocalDateTime firstStart = first.getStartTime();
+        LocalDateTime firstEnd = first.getEndTime();
+        LocalDateTime secondStart = second.getStartTime();
+        LocalDateTime secondEnd = second.getEndTime();
+
+        return (firstStart.isBefore(secondEnd) && firstEnd.isAfter(secondStart)) ||
+                (firstStart.equals(secondStart) && firstEnd.equals(secondEnd));
     }
 }

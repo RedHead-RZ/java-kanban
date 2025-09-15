@@ -3,16 +3,27 @@ package model;
 
 import enums.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
     private Integer id;
     private String label;
     private String description;
     private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
     public Task(String label, String description) {
         this.label = label;
         this.description = description;
         this.status = Status.NEW;
+    }
+
+    public Task(String label, String description, LocalDateTime startTime, Duration duration) {
+        this(label, description);
+        this.setStartTime(startTime);
+        this.setDuration(duration);
     }
 
     public Task updateTask(Task task) {
@@ -40,6 +51,13 @@ public class Task {
     public int hashCode() {
         final int prime = 31;
         return prime + id;
+    }
+
+    public LocalDateTime getEndTime() {
+        if (startTime != null && duration != null) {
+            return startTime.plus(duration);
+        }
+        return null;
     }
 
     public Integer getId() {
@@ -72,5 +90,21 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 }

@@ -2,11 +2,16 @@ package model;
 
 import enums.Status;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Optional;
 
 public class Epic extends Task {
 
     private final ArrayList<Subtask> subtasks = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String label, String description) {
         super(label, description);
@@ -24,6 +29,8 @@ public class Epic extends Task {
         } else if (this.checkSubtaskStatus(Status.DONE)) {
             setStatus(Status.DONE);
         } else setStatus(Status.NEW); //если список сабтасок пустой устанавливаем стартовый статус
+        endTime = getEndTime(); //обновляем параметры времени выполнения эпика
+
         return this;
     }
 
@@ -62,5 +69,31 @@ public class Epic extends Task {
     public void removeAllSubtasks() {
         this.subtasks.clear();
         this.updateTask(this);
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        if (subtasks.isEmpty()) {
+            setDuration(null);
+            setStartTime(null);
+            endTime = null;
+            return null;
+        }
+        Optional<Subtask> min = subtasks.stream().filter(subtask -> subtask.getEndTime() != null)
+                .min(Comparator.comparing(Task::getEndTime));
+        Optional<Subtask> max = subtasks.stream().filter(subtask -> subtask.getEndTime() != null)
+                .max(Comparator.comparing(Task::getEndTime));
+        if (min.isPresent() && max.isPresent()) {
+            if (min.get().getEndTime() != null && max.get().getEndTime() != null) {
+                updateDuration(min.get().getStartTime(), max.get().getEndTime());
+                setStartTime(min.get().getStartTime());
+                endTime = min.get().getEndTime();
+            }
+        }
+        return endTime;
+    }
+
+    private void updateDuration(LocalDateTime min, LocalDateTime max) {
+        setDuration(Duration.between(min, max));
     }
 }

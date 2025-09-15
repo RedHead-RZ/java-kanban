@@ -1,5 +1,8 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
 
     private Epic parentTask;
@@ -7,6 +10,12 @@ public class Subtask extends Task {
     public Subtask(String label, String description, Epic parentTask) {
         super(label, description);
         this.parentTask = parentTask;
+    }
+
+    public Subtask(String label, String description, Epic parentTask, LocalDateTime startTime, Duration duration) {
+        this(label, description, parentTask);
+        this.setStartTime(startTime);
+        this.setDuration(duration);
     }
 
     @Override
