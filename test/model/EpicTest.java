@@ -50,8 +50,8 @@ class EpicTest {
         //расчет длительности и начала эпика
         epic.updateTask(epic);
         assertEquals(now, epic.getStartTime());
-        assertEquals(Duration.ofMinutes(20).plusDays(1), epic.getDuration());
-        assertNotEquals(epic.getEndTime(), now.plusDays(1).plusMinutes(20));
+        assertEquals(Duration.ofMinutes(35), epic.getDuration());
+        assertNotEquals(epic.getEndTime(), now.plusMinutes(35));
         //изменение статуса при изменении одного эпика In Progress
         subtask.setStatus(Status.IN_PROGRESS);
         subtask.updateTask(subtask);

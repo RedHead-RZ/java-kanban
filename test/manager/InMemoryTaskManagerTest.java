@@ -127,9 +127,9 @@ class InMemoryTaskManagerTest {
         manager.updateTask(epic);
         assertTrue(manager.hasTimeOverlap(task));
         subtask.setStartTime(now.plusMonths(1));
-        manager.addNewTask(new Subtask("Label", "Descr", epic, now.plusMonths(2), Duration.ofHours(4)));
+        Subtask sss = new Subtask("Label", "Descr", epic, now.plusMonths(1), Duration.ofHours(4));
         manager.updateTask(epic);
-        assertFalse(manager.hasTimeOverlap(subtask));
+        assertTrue(manager.hasTimeOverlap(sss));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.TaskTimeOverlapException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -16,8 +17,9 @@ public class InMemoryTaskManager implements TaskManager {
     private static int counter = 0;
     private final HistoryManager historyManager;
     private final TreeSet<Task> prioritizedTasks;
-    private static final Comparator<Task> TASK_COMPARATOR = Comparator.comparing(Task::getStartTime)
-            .thenComparing(Task::getEndTime);
+    private static final Comparator<Task> TASK_COMPARATOR = Comparator
+            .comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+            .thenComparing(Task::getEndTime, Comparator.nullsLast(Comparator.naturalOrder()));
 
     public InMemoryTaskManager() {
         this.historyManager = Managers.getDefaultHistory();
@@ -26,6 +28,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task addNewTask(Task task) {
+        try {
+            if (hasTimeOverlap(task)) {
+                throw new TaskTimeOverlapException("Задача " + task + " имеет пересечение с существующей задачей");
+            }
+        } catch (TaskTimeOverlapException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
         if (task.getId() == null) {
             task.setId(counter);
         }
@@ -137,6 +147,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean hasOverlapBetweenTasks(Task first, Task second) {
+        if (first.getStartTime() == null || first.getEndTime() == null ||
+                second.getStartTime() == null || second.getEndTime() == null) {
+            return false;
+        }
+
         LocalDateTime firstStart = first.getStartTime();
         LocalDateTime firstEnd = first.getEndTime();
         LocalDateTime secondStart = second.getStartTime();

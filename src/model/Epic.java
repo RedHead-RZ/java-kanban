@@ -85,15 +85,18 @@ public class Epic extends Task {
                 .max(Comparator.comparing(Task::getEndTime));
         if (min.isPresent() && max.isPresent()) {
             if (min.get().getEndTime() != null && max.get().getEndTime() != null) {
-                updateDuration(min.get().getStartTime(), max.get().getEndTime());
+                updateDuration();
                 setStartTime(min.get().getStartTime());
-                endTime = min.get().getEndTime();
+                endTime = max.get().getEndTime();
             }
         }
         return endTime;
     }
 
-    private void updateDuration(LocalDateTime min, LocalDateTime max) {
-        setDuration(Duration.between(min, max));
+    private void updateDuration() {
+        setDuration(Duration.ZERO);
+        getSubtasks().stream().filter(subtask -> subtask.getDuration() != null).forEach(subtask -> {
+            setDuration(getDuration().plus(subtask.getDuration()));
+        });
     }
 }
