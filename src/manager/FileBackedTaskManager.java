@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -79,7 +81,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 Files.createDirectories(parent);
             }
             try (BufferedWriter bw = Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                bw.write("id,type,name,status,description,epic");
+                bw.write("id,type,name,status,description,duration,startTime,epic");
                 bw.newLine();
                 for (Task task : getTasks()) {
                     bw.write(formatTaskToCSV(task));
@@ -93,21 +95,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String formatTaskToCSV(Task task) {
         if (task instanceof Subtask subtask) {
-            return String.format("%d,%s,%s,%s,%s,%d",
+            return String.format("%d,%s,%s,%s,%s,%s,%s,%d",
                     subtask.getId(),
                     subtask.getClass().getSimpleName(),
                     subtask.getLabel(),
                     subtask.getStatus(),
                     subtask.getDescription(),
+                    subtask.getDuration() != null ? subtask.getDuration().toMinutes() : 0,
+                    subtask.getStartTime() != null ? subtask.getStartTime() : 0,
                     subtask.getParentTask().getId());
 
         } else {
-            return String.format("%d,%s,%s,%s,%s",
+            return String.format("%d,%s,%s,%s,%s,%s,%s",
                     task.getId(),
                     task.getClass().getSimpleName(),
                     task.getLabel(),
                     task.getStatus(),
-                    task.getDescription());
+                    task.getDescription(),
+                    task.getDuration() != null ? task.getDuration().toMinutes() : 0,
+                    task.getStartTime() != null ? task.getStartTime() : 0);
         }
     }
 
@@ -118,24 +124,29 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             switch (taskProps[1]) {
                 case "Task": {
                     task = new Task(taskProps[2], taskProps[4]);
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
-                    break;
                 }
                 case "Epic": {
                     task = new Epic(taskProps[2], taskProps[4]);
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
                     break;
                 }
                 case "Subtask": {
-                    task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[5])));
-                    task.setId(Integer.parseInt(taskProps[0]));
-                    task.setStatus(Status.valueOf(taskProps[3]));
+                    task = new Subtask(taskProps[2], taskProps[4], (Epic) getTaskById(Integer.parseInt(taskProps[7])));
                     break;
                 }
             }
+            if (task != null) {
+                setTaskParamsFromFile(taskProps, task);
+            }
         }
         return task;
+    }
+
+    private void setTaskParamsFromFile(String[] taskProps, Task task) {
+        task.setId(Integer.parseInt(taskProps[0]));
+        task.setStatus(Status.valueOf(taskProps[3]));
+        task.setDuration(Duration.ofMinutes(Integer.parseInt(taskProps[5])));
+        if (!taskProps[6].equals("0")) {
+            task.setStartTime(LocalDateTime.parse(taskProps[6]));
+        }
     }
 }

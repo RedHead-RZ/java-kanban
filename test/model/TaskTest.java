@@ -6,11 +6,16 @@ import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class TaskTest {
 
     TaskManager manager;
+    LocalDateTime now = LocalDateTime.now();
 
     @BeforeEach
     void setUp() {
@@ -20,7 +25,7 @@ class TaskTest {
 
     @Test
     void updateTask() {
-        Task task = new Task("Label", "Description");
+        Task task = new Task("Label", "Description", now, Duration.ofHours(3));
         assertEquals("Label", task.getLabel());
         assertEquals("Description", task.getDescription());
         assertEquals(Status.NEW, task.getStatus());
@@ -33,6 +38,7 @@ class TaskTest {
         assertEquals("New Label", newTask.getLabel());
         assertEquals("New Description", newTask.getDescription());
         assertEquals(Status.IN_PROGRESS, newTask.getStatus());
+        assertEquals(now.plus(Duration.ofHours(3)), newTask.getEndTime());
     }
 
     @Test

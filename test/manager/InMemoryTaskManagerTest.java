@@ -7,21 +7,25 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    TaskManager manager;
+    InMemoryTaskManager manager;
     Task task;
     Epic epic;
     Subtask subtask;
+    LocalDateTime now = LocalDateTime.now();
 
     @BeforeEach
     void setUp() {
-        manager = Managers.getDefault();
-        task = new Task("Label", "Description");
+        manager = (InMemoryTaskManager) Managers.getDefault();
+        task = new Task("Label", "Description", now, Duration.ofHours(3));
         epic = new Epic("Label-E", "Description-E");
-        subtask = new Subtask("Label-S", "Description-S", epic);
+        subtask = new Subtask("Label-S", "Description-S", epic, now.plusDays(3), Duration.ofHours(3));
         manager.addNewTask(task);
         manager.addNewTask(epic);
         manager.addNewTask(subtask);
@@ -116,5 +120,20 @@ class InMemoryTaskManagerTest {
         assertEquals(manager.getHistory().get(0), task);
         assertEquals(manager.getHistory().get(1), epic);
         assertEquals(manager.getHistory().get(2), subtask);
+    }
+
+    @Test
+    void hasTimeOverlap() {
+        manager.updateTask(epic);
+        assertTrue(manager.hasTimeOverlap(task));
+        subtask.setStartTime(now.plusMonths(1));
+        Subtask sss = new Subtask("Label", "Descr", epic, now.plusMonths(1), Duration.ofHours(4));
+        manager.updateTask(epic);
+        assertTrue(manager.hasTimeOverlap(sss));
+    }
+
+    @Test
+    void getPrioritizedTasks() {
+        assertNotEquals(manager.getPrioritizedTasks().getFirst(), manager.getPrioritizedTasks().getLast());
     }
 }
