@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.NotFoundException;
 import model.Task;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ public interface TaskManager {
 
     <T> ArrayList<Task> getTasksByType(Class<T> type);
 
-    Task getTaskById(int id);
+    Task getTaskById(int id) throws NotFoundException;
 
     <T> void removeTasksByType(Class<T> taskType);
 
@@ -18,4 +19,6 @@ public interface TaskManager {
     Task updateTask(Task task);
 
     ArrayList<Task> getHistory();
+
+    ArrayList<Task> getPrioritizedTasks();
 }

@@ -124,6 +124,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             switch (taskProps[1]) {
                 case "Task": {
                     task = new Task(taskProps[2], taskProps[4]);
+                    break;
                 }
                 case "Epic": {
                     task = new Epic(taskProps[2], taskProps[4]);
