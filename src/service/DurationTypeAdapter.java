@@ -11,7 +11,6 @@ import java.time.Duration;
 public class DurationTypeAdapter extends TypeAdapter<Duration> {
     @Override
     public void write(JsonWriter out, Duration value) throws IOException {
-        System.out.println("DurationTypeAdapter.write");
         if (value == null) {
             out.nullValue();
         } else {
@@ -21,7 +20,6 @@ public class DurationTypeAdapter extends TypeAdapter<Duration> {
 
     @Override
     public Duration read(JsonReader in) throws IOException {
-        System.out.println("DurationTypeAdapter.read");
         if (in.peek() == JsonToken.NULL) {
             in.nextNull();
             return null;

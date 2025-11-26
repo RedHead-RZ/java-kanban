@@ -92,7 +92,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         }
     }
 
-    protected void getRequestParams(HttpExchange exchange) throws IOException {
+    protected void getRequestParams(HttpExchange exchange) {
         paths = exchange.getRequestURI().getPath().split("/");
         method = exchange.getRequestMethod();
     }

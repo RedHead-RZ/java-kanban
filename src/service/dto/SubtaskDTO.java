@@ -12,12 +12,8 @@ public class SubtaskDTO {
     private Status status;
     private int parentEpicId;
 
-    // конструкторы, геттеры, сеттеры
-
     public Subtask toSubtask(TaskManager manager) {
         Epic parentEpic = (Epic) manager.getTaskById(parentEpicId);
-        System.out.println(parentEpicId);
-        System.out.println(parentEpic);
         if (parentEpic == null) {
             throw new IllegalArgumentException("Epic not found with id: " + parentEpicId);
         }

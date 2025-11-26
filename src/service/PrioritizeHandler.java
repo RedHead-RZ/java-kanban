@@ -12,6 +12,8 @@ public class PrioritizeHandler extends BaseHttpHandler implements HttpHandler {
         if (exchange.getRequestMethod().equalsIgnoreCase("GET")
                 && exchange.getRequestURI().getPath().equals("/prioritized")) {
             sendText(exchange, gson.toJson(manager.getPrioritizedTasks()), 200);
+        } else {
+            sendUnavailableMethod(exchange);
         }
     }
 }

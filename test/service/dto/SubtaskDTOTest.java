@@ -23,6 +23,7 @@ public class SubtaskDTOTest {
 
     @BeforeEach
     public void setUp() {
+        taskManager = Managers.getDefault();
         taskManager.removeTasksByType(Epic.class);
         taskManager.removeTasksByType(Subtask.class);
         taskManager = Managers.getDefault();
@@ -37,12 +38,14 @@ public class SubtaskDTOTest {
 
     @Test
     public void toSubtask() {
+        Epic epic = new Epic("Label-E", "Description-E");
+        taskManager.addNewTask(epic);
         SubtaskDTO subtaskDTO = gson.fromJson("{\"label\": \"Label-S\","
-                + "\"description\": \"Description-S\",\"parentEpicId\": 0}", SubtaskDTO.class);
+                + "\"description\": \"Description-S\",\"parentEpicId\": " + epic.getId() + "}", SubtaskDTO.class);
         Subtask subtask = subtaskDTO.toSubtask(taskManager);
         assertEquals("Label-S", subtask.getLabel());
         assertEquals("Description-S", subtask.getDescription());
-        assertEquals(0, subtask.getParentTask().getId());
+        assertEquals(epic.getId(), subtask.getParentTask().getId());
     }
 
     @Test

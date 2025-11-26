@@ -7,6 +7,7 @@ import model.Epic;
 import model.Task;
 import service.dto.EpicDTO;
 import service.dto.SubtaskDTO;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -38,9 +39,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetTaskList(HttpExchange exchange) throws IOException {
         ArrayList<EpicDTO> epicsModel = new ArrayList<>();
-        manager.getTasksByType(Epic.class).forEach(epic -> {
-            epicsModel.add(EpicDTO.toEpicDTO((Epic) epic));
-        });
+        manager.getTasksByType(Epic.class).forEach(epic -> epicsModel.add(EpicDTO.toEpicDTO((Epic) epic)));
         sendText(exchange, gson.toJson(epicsModel), 200);
     }
 
@@ -60,7 +59,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         Integer id = parseId(exchange, idStr);
         if (id == null) return;
 
-        Epic epic = null;
+        Epic epic;
         try {
             epic = (Epic) manager.getTaskById(id);
         } catch (ClassCastException e) {
@@ -68,9 +67,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             return;
         }
         ArrayList<SubtaskDTO> subtasks = new ArrayList<>();
-        epic.getSubtasks().forEach(subtask -> {
-            subtasks.add(SubtaskDTO.toSubtaskDTO(subtask));
-        });
+        epic.getSubtasks().forEach(subtask -> subtasks.add(SubtaskDTO.toSubtaskDTO(subtask)));
         sendText(exchange, gson.toJson(subtasks), 200);
     }
 
@@ -90,6 +87,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             Epic createdTask = (Epic) manager.addNewTask(task);
             if (createdTask == null) {
                 sendTaskOverlap(exchange);
+                return;
             }
             sendText(exchange, gson.toJson(EpicDTO.toEpicDTO(createdTask)), 200);
         } catch (TaskTimeOverlapException e) {

@@ -6,6 +6,7 @@ import exceptions.TaskTimeOverlapException;
 import model.Subtask;
 import model.Task;
 import service.dto.SubtaskDTO;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -36,9 +37,8 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetTaskList(HttpExchange exchange) throws IOException {
         ArrayList<SubtaskDTO> subtasksModel = new ArrayList<>();
-        manager.getTasksByType(Subtask.class).forEach(subtask -> {
-            subtasksModel.add(SubtaskDTO.toSubtaskDTO((Subtask) subtask));
-        });
+        manager.getTasksByType(Subtask.class).forEach(subtask ->
+                subtasksModel.add(SubtaskDTO.toSubtaskDTO((Subtask) subtask)));
         sendText(exchange, gson.toJson(subtasksModel), 200);
     }
 
