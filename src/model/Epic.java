@@ -36,11 +36,15 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        for (Subtask subtask : subtasks) {
-            str.append("\n     ").append(subtask.toString());
-        }
-        return super.toString() + "; Список задач:" + str;
+        return "{" +
+                "\"id\":" + getId() +
+                ",\"label\":\"" + getLabel() +
+                "\",\"description\":\"" + getDescription() +
+                "\",\"status\":\"" + getStatus() +
+                "\",\"startTime\":\"" + getStartTime() +
+                "\",\"endTime\":\"" + getEndTime() +
+                "\",\"subtasksCount\":" + getSubtasks().size() +
+                "\"}";
     }
 
     private boolean checkSubtaskStatus(Status status) {

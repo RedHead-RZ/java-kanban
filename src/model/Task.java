@@ -35,8 +35,15 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Тип задачи: " + this.getClass().getName() + "; Название: " + label
-                + "; Описание: " + description + "; Статус: " + status + "; ID: " + id;
+        return "{" +
+                "\"id\":" + getId() +
+                ",\"label\":\"" + getLabel() +
+                "\",\"description\":\"" + getDescription() +
+                "\",\"status\":\"" + getStatus() +
+                "\",\"duration\":\"" + getDuration() +
+                "\",\"startTime\":\"" + getStartTime() +
+                "\",\"endTime\":\"" + getEndTime() +
+                "\"}";
     }
 
     @Override

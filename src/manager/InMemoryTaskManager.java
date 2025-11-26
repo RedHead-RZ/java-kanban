@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.NotFoundException;
 import exceptions.TaskTimeOverlapException;
 import model.Epic;
 import model.Subtask;
@@ -27,13 +28,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task addNewTask(Task task) {
+    public Task addNewTask(Task task) throws TaskTimeOverlapException {
         try {
             if (hasTimeOverlap(task)) {
                 throw new TaskTimeOverlapException("Задача " + task + " имеет пересечение с существующей задачей");
             }
         } catch (TaskTimeOverlapException e) {
-            System.out.println(e.getMessage());
             return null;
         }
         if (task.getId() == null) {
@@ -59,7 +59,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTaskById(int id) {
+    public Task getTaskById(int id) throws NotFoundException {
         return getTaskById(id, true);
     }
 
@@ -69,28 +69,25 @@ public class InMemoryTaskManager implements TaskManager {
             removeTaskById(task.getId());
             prioritizedTasks.remove(task);
         });
-
     }
 
     @Override
     public void removeTaskById(int id) {
         Task task = getTaskById(id, false);
-        if (task != null) {
-            switch (task) {
-                case Subtask subtask:
-                    subtask.removeFromParentTask();
-                    break;
-                case Epic epic:
-                    epic.getSubtasks().forEach(this::removeSubtasks);
-                    epic.removeAllSubtasks();
-                    break;
-                default:
-                    break;
-            }
-            historyManager.remove(id);
-            tasks.remove(id);
-            prioritizedTasks.remove(task);
+        switch (task) {
+            case Subtask subtask:
+                subtask.removeFromParentTask();
+                break;
+            case Epic epic:
+                epic.getSubtasks().forEach(this::removeSubtasks);
+                epic.removeAllSubtasks();
+                break;
+            default:
+                break;
         }
+        historyManager.remove(id);
+        tasks.remove(id);
+        prioritizedTasks.remove(task);
     }
 
     @Override
@@ -122,10 +119,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (prioritizedTasks.size() <= 1) {
             return false;
         }
-
-        Task taskBefore = prioritizedTasks.lower(task) == null ? task : prioritizedTasks.lower(task);
-        Task taskAfter = prioritizedTasks.higher(task) == null ? task : prioritizedTasks.higher(task);
-
+        Task taskBefore = prioritizedTasks.lower(task) == null ? null : prioritizedTasks.lower(task);
+        Task taskAfter = prioritizedTasks.higher(task) == null ? null : prioritizedTasks.higher(task);
         if (taskBefore != null && hasOverlapBetweenTasks(taskBefore, task)) {
             return true;
         }
@@ -138,9 +133,12 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.remove(subtask.getId());
     }
 
-    private Task getTaskById(int id, boolean updateHistory) {
+    private Task getTaskById(int id, boolean updateHistory) throws NotFoundException {
         Task task = tasks.get(id) == null ? null : tasks.get(id);
-        if (task != null && updateHistory) {
+        if (task == null) {
+            throw new NotFoundException("Задача не найдена");
+        }
+        if (updateHistory) {
             historyManager.add(task);
         }
         return task;

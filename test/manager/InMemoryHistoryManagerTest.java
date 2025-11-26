@@ -1,5 +1,7 @@
 package manager;
 
+import model.Epic;
+import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.Test;
 
@@ -36,13 +38,18 @@ class InMemoryHistoryManagerTest {
     @Test
     void remove() {
         TaskManager taskManager = Managers.getDefault();
-        taskManager.addNewTask(new Task("Label", "Description"));
-        taskManager.addNewTask(new Task("Label-2", "Description-2"));
-        taskManager.addNewTask(new Task("Label-3", "Description-3"));
-        int initialIndex = taskManager.getTasksByType(Task.class).getFirst().getId();
-        taskManager.getTaskById(initialIndex);
-        taskManager.getTaskById(initialIndex + 1);
-        taskManager.getTaskById(initialIndex + 2);
+        taskManager.removeTasksByType(Task.class);
+        taskManager.removeTasksByType(Epic.class);
+        taskManager.removeTasksByType(Subtask.class);
+        Task task = new Task("Label", "Description");
+        Task task2 = new Task("Label-2", "Description-2");
+        Task task3 = new Task("Label-3", "Description-3");
+        taskManager.addNewTask(task);
+        taskManager.addNewTask(task2);
+        taskManager.addNewTask(task3);
+        taskManager.getTaskById(task2.getId());
+        taskManager.getTaskById(task.getId());
+        taskManager.getTaskById(task3.getId());
         taskManager.removeTaskById(taskManager.getHistory().getLast().getId());
         assertEquals(2, taskManager.getHistory().size());//удаление элемента из середины
         taskManager.removeTaskById(taskManager.getHistory().getFirst().getId());

@@ -27,7 +27,15 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return super.toString() + "; Родительская задача: " + parentTask.getLabel();
+        return "{" +
+                "\"id\":" + getId() +
+                ",\"label\":\"" + getLabel() +
+                "\",\"description\":\"" + getDescription() +
+                "\",\"status\":\"" + getStatus() +
+                "\",\"duration\":\"" + getDuration() +
+                "\",\"startTime\":\"" + getStartTime() +
+                "\",\"parentEpicId\":" + (getParentTask().getId()) +
+                "}";
     }
 
     public Epic getParentTask() {

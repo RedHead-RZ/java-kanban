@@ -1,6 +1,7 @@
 package manager;
 
 import enums.Status;
+import exceptions.NotFoundException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -75,11 +76,11 @@ class InMemoryTaskManagerTest {
     @Test
     void removeTaskById() {
         manager.removeTaskById(task.getId());
-        assertNull(manager.getTaskById(task.getId()));
-        manager.removeTaskById(epic.getId());
-        assertNull(manager.getTaskById(epic.getId()));
+        assertThrows(NotFoundException.class, () -> manager.getTaskById(task.getId()));
         manager.removeTaskById(subtask.getId());
-        assertNull(manager.getTaskById(subtask.getId()));
+        assertThrows(NotFoundException.class, () -> manager.getTaskById(subtask.getId()));
+        manager.removeTaskById(epic.getId());
+        assertThrows(NotFoundException.class, () -> manager.getTaskById(epic.getId()));
     }
 
     @Test
@@ -125,7 +126,7 @@ class InMemoryTaskManagerTest {
     @Test
     void hasTimeOverlap() {
         manager.updateTask(epic);
-        assertTrue(manager.hasTimeOverlap(task));
+        assertFalse(manager.hasTimeOverlap(task));
         subtask.setStartTime(now.plusMonths(1));
         Subtask sss = new Subtask("Label", "Descr", epic, now.plusMonths(1), Duration.ofHours(4));
         manager.updateTask(epic);

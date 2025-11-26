@@ -1,5 +1,6 @@
 package manager;
 
+import exceptions.NotFoundException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -8,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest {
 
@@ -59,7 +59,7 @@ public class FileBackedTaskManagerTest {
         tm.addNewTask(epic);
         tm.addNewTask(subtask);
         tm.removeTaskById(task.getId());
-        assertNull(tm.getTaskById(task.getId()));
+        assertThrows(NotFoundException.class, () -> tm.getTaskById(task.getId()));
         assertEquals(tm.getTaskById(epic.getId()).getLabel(), epic.getLabel());
         assertEquals(tm.getTaskById(subtask.getId()).getLabel(), subtask.getLabel());
     }
